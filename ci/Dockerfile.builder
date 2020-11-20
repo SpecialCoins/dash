@@ -4,7 +4,7 @@ FROM ubuntu:bionic
 # (zlib1g-dev and libssl-dev are needed for the Qt host binary builds, but should not be used by target binaries)
 # We split this up into multiple RUN lines as we might need to retry multiple times on Travis. This way we allow better
 # cache usage.
-ENV APT_ARGS="-y --no-install-recommends --no-upgrade"
+ENV APT_ARGS="-y --no-install-recommends --no-upgrade -qq zip"
 RUN apt-get update && apt-get install $APT_ARGS git wget unzip && rm -rf /var/lib/apt/lists/*
 RUN apt-get update && apt-get install $APT_ARGS g++ && rm -rf /var/lib/apt/lists/*
 RUN apt-get update && apt-get install $APT_ARGS autotools-dev libtool m4 automake autoconf pkg-config && rm -rf /var/lib/apt/lists/*
@@ -15,10 +15,6 @@ RUN apt-get update && apt-get install $APT_ARGS python3-pip python3-setuptools &
 # Python stuff
 RUN pip3 install pyzmq # really needed?
 RUN pip3 install jinja2
-
-# dash_hash
-RUN git clone https://github.com/dashpay/dash_hash
-RUN cd dash_hash && python3 setup.py install
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000
@@ -53,13 +49,13 @@ RUN \
   update-alternatives --set x86_64-w64-mingw32-g++  /usr/bin/x86_64-w64-mingw32-g++-posix; \
   exit 0
 
-RUN mkdir /dash-src && \
+RUN mkdir /bitcoin-src && \
   mkdir -p /cache/ccache && \
   mkdir /cache/depends && \
   mkdir /cache/sdk-sources && \
-  chown $USER_ID:$GROUP_ID /dash-src && \
+  chown $USER_ID:$GROUP_ID /bitcoin-src && \
   chown $USER_ID:$GROUP_ID /cache && \
   chown $USER_ID:$GROUP_ID /cache -R
-WORKDIR /dash-src
+WORKDIR /bitcoin-src
 
 USER dash
